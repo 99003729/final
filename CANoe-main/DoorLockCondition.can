@@ -1,0 +1,74 @@
+/*@!Encoding:1252*/
+
+includes
+{
+
+}
+
+variables
+{
+  message AccelerationMSG acc;
+  message CarMode cm;
+  message DoorPhysical dp;
+  message DoorStatus ds;
+  msTimer timer_k;
+  int c=0;
+}
+
+on start
+{
+  dp.DoorC_O=0;
+  ds.Lock_UnlockKey=0;
+  setTimer(timer_k, 200);
+}
+
+on sysvar BodyControl::Door
+{
+  if(ds.Lock_UnlockKey==1)
+  {
+    dp.DoorC_O=@BodyControl::Door=1;
+  }
+  else
+  {
+    dp.DoorC_O=@BodyControl::Door;
+  }
+  output(dp);
+}
+
+on key 'l'
+{
+  if(dp.DoorC_O==1)
+  {
+    ds.Lock_UnlockKey=1;
+    output(ds);
+  }
+}
+
+on key 'u'
+{
+  ds.Lock_UnlockKey=0;
+}
+
+on key 'p'
+{
+  cm.ParkMode=1;
+  if(cm.ParkMode==1)
+  {
+    ds.Lock_UnlockKey=0;
+  }
+}
+
+on message AccelerationMSG
+{
+  if(this.Acceleration>100)
+  { 
+    ds.Lock_UnlockKey=1;
+    output(ds);
+  }
+}
+
+on timer timer_k
+{
+  output(ds);
+  setTimer(timer_k,200);
+}

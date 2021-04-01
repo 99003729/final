@@ -1,0 +1,96 @@
+/*@!Encoding:1252*/
+includes
+{
+  
+}
+
+ 
+
+variables
+{
+  message DomeLights dl;
+  message DoorStatus ds;
+  message AccelerationMSG acc;
+  message CruiseMSG cc;
+  message Cruise_Control_Light ccl;
+  message Indicator ind;
+  timer timer_tt;
+  message Engine e;
+  message RPM r;
+  int velo=0;
+  int i=10;
+  int varr=10;
+  int changer=0;
+  message Engine var;
+  message AccelerationMSG acclr;
+  message BrakeMSG brk;
+  
+}
+on start
+{
+dl.DomeSignal=0;
+setTimer(timer_tt,5);
+  output(r);
+}
+on message DoorStatus
+{
+if(this.Lock_UnlockKey==1)
+{
+ dl.DomeSignal=1;
+  output(dl);
+}
+else
+{
+  dl.DomeSignal=0;
+  output(dl);
+}
+}
+on message CruiseMSG
+{
+  if(this.CruiseStatus==1)
+  {
+    ccl.cruise_light=1;
+    output(ccl);
+  }
+  else
+  {
+    ccl.cruise_light=0;
+    output(ccl);
+  }
+}
+on key '4'
+{
+  ind.Left_indicator=1;  
+  ind.Right_indicator=0;
+  output(ind);
+}
+on key '6'
+{
+  ind.Left_indicator=0;
+  ind.Right_indicator=1;
+  output(ind);
+}
+on timer timer_tt
+{
+  setTimer(timer_tt,5);
+  ind.Left_indicator=0;
+  ind.Right_indicator=0;
+  output(ind);
+}
+on key 'a'
+{
+  if(i<2000)
+  {
+    i = i + 10;
+    acclr.Acceleration=i;
+    output(acclr);
+    
+  }
+}
+on message AccelerationMSG
+{
+  e.Velocity=this.Acceleration;
+  r.rpm=(e.Velocity*12*0.728);
+  output(r);
+  
+}
